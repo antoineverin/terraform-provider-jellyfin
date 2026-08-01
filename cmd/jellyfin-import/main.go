@@ -26,6 +26,7 @@ func main() {
 	username := flag.String("username", os.Getenv("JELLYFIN_USERNAME"), "Jellyfin username (or JELLYFIN_USERNAME env)")
 	password := flag.String("password", os.Getenv("JELLYFIN_PASSWORD"), "Jellyfin password (or JELLYFIN_PASSWORD env)")
 	outputDir := flag.String("output", ".", "Output directory for generated Terraform files")
+	insecure := flag.Bool("insecure", os.Getenv("JELLYFIN_INSECURE") == "true", "Insecure connection to Jellyfin (or JELLYFIN_INSCURE)")
 	flag.Parse()
 
 	if *endpoint == "" {
@@ -37,7 +38,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	c, err := importClient(context.Background(), *endpoint, *apiKey, *username, *password)
+	c, err := importClient(context.Background(), *endpoint, *apiKey, *username, *password, *insecure)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error configuring Jellyfin client: %v\n", err)
 		os.Exit(1)
@@ -63,8 +64,8 @@ func main() {
 	fmt.Println("Import files generated successfully in", *outputDir)
 }
 
-func importClient(ctx context.Context, endpoint, apiKey, username, password string) (*client.Client, error) {
-	c := client.NewClient(endpoint, apiKey)
+func importClient(ctx context.Context, endpoint, apiKey, username, password string, insecure bool) (*client.Client, error) {
+	c := client.NewClient(endpoint, apiKey, false)
 	if apiKey != "" {
 		return c, nil
 	}

@@ -42,6 +42,7 @@ type JellyfinProviderModel struct {
 	APIKey   types.String `tfsdk:"api_key"`
 	Username types.String `tfsdk:"username"`
 	Password types.String `tfsdk:"password"`
+	Insecure types.Bool		`tfsdk:"insecure"`
 }
 
 func (p *JellyfinProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -100,6 +101,11 @@ func (p *JellyfinProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
+			"insecure": schema.BoolAttribute{
+				Description: "Configure if insecure connection to jellyfin is authorized. Can also be configured by setting `JELLYFIN_INSECURE` to `true`",
+				MarkdownDescription: "Configure if insecure connection to jellyfin is authorized. Can also be configured by setting `JELLYFIN_INSECURE` to `true`",
+				Optional: true,
+			},
 		},
 	}
 }
@@ -132,6 +138,11 @@ func (p *JellyfinProvider) Configure(ctx context.Context, req provider.Configure
 		password = data.Password.ValueString()
 	}
 
+	insecure := os.Getenv("JELLYFIN_INSECURE") == "true"
+	if !data.Insecure.IsNull() && !data.Insecure.IsUnknown() {
+		insecure = data.Insecure.ValueBool()
+	}
+
 	if endpoint == "" {
 		resp.Diagnostics.AddError(
 			"Missing Jellyfin Endpoint",
@@ -141,7 +152,7 @@ func (p *JellyfinProvider) Configure(ctx context.Context, req provider.Configure
 		return
 	}
 
-	c, info, err := configureClient(ctx, endpoint, apiKey, username, password)
+	c, info, err := configureClient(ctx, endpoint, apiKey, username, password, insecure)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Jellyfin Configuration Failed",
@@ -160,8 +171,8 @@ func (p *JellyfinProvider) Configure(ctx context.Context, req provider.Configure
 	resp.ResourceData = c
 }
 
-func configureClient(ctx context.Context, endpoint, apiKey, username, password string) (*client.Client, *client.PublicSystemInfo, error) {
-	c := client.NewClient(endpoint, apiKey)
+func configureClient(ctx context.Context, endpoint, apiKey, username, password string, insecure bool) (*client.Client, *client.PublicSystemInfo, error) {
+	c := client.NewClient(endpoint, apiKey, insecure)
 
 	info, err := getPublicSystemInfo(ctx, c)
 	if err != nil {

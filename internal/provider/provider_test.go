@@ -38,6 +38,7 @@ func testAccClient(t *testing.T) *client.Client {
 		os.Getenv("JELLYFIN_API_KEY"),
 		os.Getenv("JELLYFIN_USERNAME"),
 		os.Getenv("JELLYFIN_PASSWORD"),
+		os.Getenv("JELLYFIN_INSECURE") == "true",
 	)
 	if err != nil {
 		t.Fatalf("failed to configure Jellyfin acceptance test client: %v", err)

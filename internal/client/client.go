@@ -6,6 +6,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -40,11 +41,16 @@ func IsNotFound(err error) bool {
 }
 
 // NewClient creates a new Jellyfin API client.
-func NewClient(baseURL, apiKey string) *Client {
+func NewClient(baseURL, apiKey string, insecure bool) *Client {
+	tr := http.DefaultTransport.(*http.Transport).Clone()
+	if insecure {
+		tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
 	return &Client{
 		BaseURL:    strings.TrimRight(baseURL, "/"),
 		APIKey:     apiKey,
-		HTTPClient: &http.Client{Timeout: 30 * time.Second},
+		HTTPClient: &http.Client{Timeout: 30 * time.Second, Transport: tr},
 	}
 }
 

@@ -285,7 +285,7 @@ func TestGenerateUsers(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -321,7 +321,7 @@ func TestGenerateLibraries(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -351,7 +351,7 @@ func TestGenerateAPIKeys(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -377,7 +377,7 @@ func TestGenerateScheduledTasks(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -405,7 +405,7 @@ func TestGenerateSingletonConfigs(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -434,7 +434,7 @@ func TestGeneratePlugins(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -463,7 +463,7 @@ func TestGeneratePluginRepositories(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -487,7 +487,7 @@ func TestFullGenerate(t *testing.T) {
 
 	outputDir := t.TempDir()
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: outputDir,
 		usedNames: make(map[string]int),
 	}
@@ -573,7 +573,7 @@ func TestGenerateWithServerError(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -660,7 +660,7 @@ func TestGeneratePluginsWithoutPackagesEndpoint(t *testing.T) {
 	defer server.Close()
 
 	g := &generator{
-		client:    client.NewClient(server.URL, "test-key"),
+		client:    client.NewClient(server.URL, "test-key", false),
 		outputDir: t.TempDir(),
 		usedNames: make(map[string]int),
 	}
@@ -683,7 +683,7 @@ func TestGeneratePluginsWithoutPackagesEndpoint(t *testing.T) {
 func TestImportClientUsesAPIKeyWhenProvided(t *testing.T) {
 	t.Parallel()
 
-	c, err := importClient(context.Background(), "http://example.test", "api-key", "", "")
+	c, err := importClient(context.Background(), "http://example.test", "api-key", "", "", false)
 	if err != nil {
 		t.Fatalf("importClient() error = %v", err)
 	}
@@ -710,7 +710,7 @@ func TestImportClientAuthenticatesWithCredentials(t *testing.T) {
 	}))
 	defer server.Close()
 
-	c, err := importClient(context.Background(), server.URL, "", "admin", "Admin123!")
+	c, err := importClient(context.Background(), server.URL, "", "admin", "Admin123!", false)
 	if err != nil {
 		t.Fatalf("importClient() error = %v", err)
 	}
@@ -722,7 +722,7 @@ func TestImportClientAuthenticatesWithCredentials(t *testing.T) {
 func TestImportClientRequiresUsernameWhenAPIKeyMissing(t *testing.T) {
 	t.Parallel()
 
-	_, err := importClient(context.Background(), "http://example.test", "", "", "Admin123!")
+	_, err := importClient(context.Background(), "http://example.test", "", "", "Admin123!", false)
 	if err == nil {
 		t.Fatal("importClient() error = nil, want missing username error")
 	}
@@ -734,7 +734,7 @@ func TestImportClientRequiresUsernameWhenAPIKeyMissing(t *testing.T) {
 func TestImportClientRequiresPasswordWhenAPIKeyMissing(t *testing.T) {
 	t.Parallel()
 
-	_, err := importClient(context.Background(), "http://example.test", "", "admin", "")
+	_, err := importClient(context.Background(), "http://example.test", "", "admin", "", false)
 	if err == nil {
 		t.Fatal("importClient() error = nil, want missing password error")
 	}
@@ -754,7 +754,7 @@ func testAccImportClient(t *testing.T) *client.Client {
 		t.Skip("JELLYFIN_ENDPOINT and either JELLYFIN_API_KEY or JELLYFIN_USERNAME/JELLYFIN_PASSWORD must be set for acceptance tests")
 	}
 
-	c, err := importClient(context.Background(), endpoint, apiKey, username, password)
+	c, err := importClient(context.Background(), endpoint, apiKey, username, password, false)
 	if err != nil {
 		t.Fatalf("failed to configure Jellyfin import acceptance test client: %v", err)
 	}

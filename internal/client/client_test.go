@@ -25,7 +25,7 @@ func TestGetVirtualFoldersUsesJellyfinItemIDCasing(t *testing.T) {
 	}))
 	defer server.Close()
 
-	folders, err := NewClient(server.URL, "test-key").GetVirtualFolders(context.Background())
+	folders, err := NewClient(server.URL, "test-key", false).GetVirtualFolders(context.Background())
 	if err != nil {
 		t.Fatalf("GetVirtualFolders() error = %v", err)
 	}
@@ -52,7 +52,7 @@ func TestGetAvailablePackagesUsesJellyfinRepositoryURLCasing(t *testing.T) {
 	}))
 	defer server.Close()
 
-	packages, err := NewClient(server.URL, "test-key").GetAvailablePackages(context.Background())
+	packages, err := NewClient(server.URL, "test-key", false).GetAvailablePackages(context.Background())
 	if err != nil {
 		t.Fatalf("GetAvailablePackages() error = %v", err)
 	}
@@ -74,7 +74,7 @@ func TestInstallPluginUsesJellyfinRepositoryURLQueryCasing(t *testing.T) {
 	}))
 	defer server.Close()
 
-	if err := NewClient(server.URL, "test-key").InstallPlugin(context.Background(), "MusicBrainz", "14.0.0.0", "https://repo.example/manifest.json"); err != nil {
+	if err := NewClient(server.URL, "test-key", false).InstallPlugin(context.Background(), "MusicBrainz", "14.0.0.0", "https://repo.example/manifest.json"); err != nil {
 		t.Fatalf("InstallPlugin() error = %v", err)
 	}
 }
@@ -104,7 +104,7 @@ func TestUserAndAuthResponsesUseJellyfinIDCasing(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 
-	client := NewClient(server.URL, "test-key")
+	client := NewClient(server.URL, "test-key", false)
 	users, err := client.GetUsers(context.Background())
 	if err != nil {
 		t.Fatalf("GetUsers() error = %v", err)
